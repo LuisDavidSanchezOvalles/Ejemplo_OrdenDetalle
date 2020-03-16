@@ -52,6 +52,61 @@ namespace PruebaOrden1.UI.Registros
             Limpiar();
         }
 
+        private bool Validar()
+        {
+            bool paso = true;
+
+            if (string.IsNullOrWhiteSpace(OrdenIdTextBox.Text))
+                paso = false;
+            else
+            {
+                try
+                {
+                    int i = Convert.ToInt32(OrdenIdTextBox.Text);
+                }
+                catch (FormatException)
+                {
+                    paso = false;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(NombresTextBox.Text))
+                paso = false;
+            else
+            {
+                foreach (var caracter in NombresTextBox.Text)
+                {
+                    if (!char.IsLetter(caracter) && !char.IsWhiteSpace(caracter))
+                        paso = false;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(Convert.ToString(FechaDatePicker.SelectedDate)))
+                paso = false;
+            else
+            {
+                try
+                {
+                    DateTime fecha = Convert.ToDateTime(FechaDatePicker.Text);
+                }
+                catch(FormatException)
+                {
+                    paso = false;
+                }
+
+                if (Convert.ToDateTime(FechaDatePicker.Text) > DateTime.Now)
+                    paso = false;
+            }
+
+            if (contenedor.orden.Productos.Count == 0)
+                paso = false;
+
+            if (paso == false)
+                MessageBox.Show("Datos invalidos");
+
+            return paso;
+        }
+
         private bool ExisteEnLaBaseDeDatos()
         {
             Orden ordenAnterior = OrdenesBLL.Buscar(contenedor.orden.OrdenId);
@@ -61,6 +116,9 @@ namespace PruebaOrden1.UI.Registros
         private void GuardarButton_Click(object sender, RoutedEventArgs e)
         {
             bool paso = false;
+
+            if (!Validar())
+                return;
 
             if (contenedor.orden.OrdenId == 0)
             {
@@ -116,9 +174,58 @@ namespace PruebaOrden1.UI.Registros
             }
         }
 
+        private bool ValidarDetalle()
+        {
+            bool paso = true;
+
+            if(string.IsNullOrWhiteSpace(DescripcionTextBox.Text))
+                paso = false;
+            else
+            {
+                foreach (var caracter in DescripcionTextBox.Text)
+                {
+                    if (!char.IsLetter(caracter) && !char.IsWhiteSpace(caracter) && !char.IsDigit(caracter))
+                        paso = false;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(PrecioTextBox.Text))
+                paso = false;
+            else
+            {
+                try
+                {
+                    decimal i = Convert.ToInt32(PrecioTextBox.Text);
+                }
+                catch (FormatException)
+                {
+                    paso = false;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(CantidadTextBox.Text))
+                paso = false;
+            else
+            {
+                try
+                {
+                    int i = Convert.ToInt32(CantidadTextBox.Text);
+                }
+                catch (FormatException)
+                {
+                    paso = false;
+                }
+            }
+
+            if (paso == false)
+                MessageBox.Show("Datos Invalidos para agregar");
+
+            return paso;
+        }
+
         private void AgregarButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!ExisteEnLaBaseDeDatos())
+            if (!ValidarDetalle())
                 return;
 
             contenedor.orden.Productos.Add(new ProductoDetalle(contenedor.orden.OrdenId, DescripcionTextBox.Text, 
